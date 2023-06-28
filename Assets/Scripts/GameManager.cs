@@ -6,6 +6,8 @@ using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private Transform paddle1;
+    [SerializeField] private Transform paddle2;
     [SerializeField] private Ball ballPrefab;
     [SerializeField] private Transform ballSpawnPointUp;
     [SerializeField] private Transform ballSpawnPointDown;
@@ -22,15 +24,19 @@ public class GameManager : MonoBehaviour
 
     public bool IsGameOver { get; private set; }
 
-    private Transform[] ballSpawnPoints;
+        private Transform[] ballSpawnPoints;
     private Vector2[] ballInitialDirections;
     private Dictionary<Transform, Vector2[]> spawnPointToInitialDirections;
 
     private Dictionary<int, int> goalScore;
     private Dictionary<int, TextMeshProUGUI> goalScoreText;
 
+    public Ball currentBall;
+
     private void Awake()
     {
+        Screen.SetResolution(Screen.width, Screen.width / 16 * 9, true);
+
         ballSpawnPoints = new Transform[]
         {
             ballSpawnPointUp,
@@ -56,6 +62,7 @@ public class GameManager : MonoBehaviour
         goalLeft.OnGoal += IncreaseScore;
         goalRight.OnGoal += IncreaseScore;
         menu.OnStartGame += WaitForSpace;
+        menu.OnMainMenu += PauseGame;
     }
 
     private void OnDisable()
@@ -63,6 +70,7 @@ public class GameManager : MonoBehaviour
         goalLeft.OnGoal -= IncreaseScore;
         goalRight.OnGoal -= IncreaseScore;
         menu.OnStartGame -= WaitForSpace;
+        menu.OnMainMenu -= PauseGame;
     }
 
     private void Update()
@@ -75,10 +83,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void PauseGame()
+    {
+        IsGameOver = !IsGameOver;
+    }
+
     private void InitializeGame()
     {
         IsGameOver = true;
-
+        if(currentBall is not null) Destroy(currentBall.gameObject);
+        paddle1.position = new Vector2(-7, 0);
+        paddle2.position = new Vector2 (7, 0);
         goalScore = new Dictionary<int, int>()
         {
             {0, 0},
@@ -89,6 +104,8 @@ public class GameManager : MonoBehaviour
             {0, scoreTextLeft},
             {1, scoreTextRight}
         };
+        goalScoreText[0].text = "0";
+        goalScoreText[1].text = "0";
     }
 
     private void WaitForSpace()
@@ -108,6 +125,9 @@ public class GameManager : MonoBehaviour
 
         Ball ball = Instantiate(ballPrefab, ballSpawnPoint.position, Quaternion.identity);
         ball.MoveDirection = ballInitialDirection;
+
+        ball.gm = this;
+        currentBall = ball;
     }
 
     private void IncreaseScore(int goal)

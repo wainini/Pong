@@ -5,6 +5,8 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
+
+    public GameManager gm;
     
     private Rigidbody2D rb;
 
@@ -29,6 +31,7 @@ public class Ball : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (gm.IsGameOver) return;
         rb.MovePosition(rb.position + MoveDirection * moveSpeed);
     }
 
@@ -48,6 +51,7 @@ public class Ball : MonoBehaviour
 
     public void DestroyBall()
     {
+        gm.currentBall = null;
         Destroy(this.gameObject);
     }
 
