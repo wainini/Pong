@@ -27,9 +27,16 @@ public class InputHandler : MonoBehaviour
 
     public Action<Vector2> OnKeyPressed;
 
+    private GameManager gm;
+
+    private void Awake()
+    {
+        gm = FindObjectOfType<GameManager>();
+    }
+
     void Update()
     {
-        if (assignedKey == null) return;
+        if (assignedKey == null || gm.IsGameOver) return;
 
         Vector2 moveDir = Vector2.zero;
 

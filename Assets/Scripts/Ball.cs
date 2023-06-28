@@ -7,17 +7,29 @@ public class Ball : MonoBehaviour
     [SerializeField] private float moveSpeed;
     
     private Rigidbody2D rb;
-    private Vector2 moveDir;
+
+    private Vector2 moveDirection;
+    public Vector2 MoveDirection
+    {
+        get
+        {
+            return moveDirection;
+        }
+        set
+        {
+            moveDirection = value;
+        }
+    }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        moveDir = new Vector2(1, -1);
+        MoveDirection = new Vector2(1, -1);
     }
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + moveDir * moveSpeed);
+        rb.MovePosition(rb.position + MoveDirection * moveSpeed);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -26,11 +38,17 @@ public class Ball : MonoBehaviour
 
         if (contactDir.y == 0)
         {
-            moveDir.x = -moveDir.x;
+            moveDirection.x = -MoveDirection.x;
         }
         else
         {
-            moveDir.y = -moveDir.y;
+            moveDirection.y = -MoveDirection.y;
         }
     }
+
+    public void DestroyBall()
+    {
+        Destroy(this.gameObject);
+    }
+
 }
